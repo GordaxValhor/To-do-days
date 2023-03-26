@@ -1,0 +1,23 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Color pallet */
+/* CSS HEX */
+body {
+  --jet: #2c302eff;
+  --outer-space: #474a48ff;
+  --battleship-gray: #909590ff;
+  --celadon: #9ae19dff;
+  --fern-green: #537a5aff;
+}
+
+.wrapper-days {
+  display: flex;
+}
+.wrapper-days div {
+  margin: 10px;
+  text-align: center;
+}
