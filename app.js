@@ -75,11 +75,13 @@ let buttonTestPatch = document.querySelector("#button3");
 testJsonStorage();
 //testare log in prin api glitch
 
-const URL_API_LOGIN = "https://mire-ahead-sugar.glitch.me/test-login";
+const URL_API_LOGIN = "https://gordax-test-api.glitch.me/login";
 
 async function logIn(pwd) {
   let result = await fetch(`${URL_API_LOGIN}?pwd=${pwd}`);
-  if (result) {
+  let response = await result.json();
+  console.log("raspuns", response);
+  if (response) {
     alert("esti logat");
   } else {
     alert("parola gresita");
