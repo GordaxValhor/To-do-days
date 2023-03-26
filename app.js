@@ -73,6 +73,30 @@ let buttonTestPatch = document.querySelector("#button3");
 // });
 
 testJsonStorage();
+//testare log in prin api glitch
+
+const URL_API_LOGIN = "https://mire-ahead-sugar.glitch.me/test-login";
+
+async function logIn(pwd) {
+  let result = await fetch(`${URL_API_LOGIN}?pwd=${pwd}`);
+  if (result) {
+    alert("esti logat");
+  } else {
+    alert("parola gresita");
+  }
+}
+
+async function testLogIn() {
+  let inputPwd = document.querySelector("#password");
+  let buttonLogIn = document.querySelector("#logInBtn");
+
+  buttonLogIn.addEventListener("click", (e) => {
+    e.preventDefault();
+    console.log("valoare pwd:", inputPwd.value);
+    logIn(inputPwd.value);
+  });
+}
+testLogIn();
 
 //testare preluare task pe zile
 
