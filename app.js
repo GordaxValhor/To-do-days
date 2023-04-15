@@ -1,4 +1,4 @@
-//helo!!
+//hello!!
 
 //api key for https://api.jsonstorage.net/ storage
 
@@ -103,12 +103,17 @@ testLogIn();
 //testare preluare task pe zile
 
 let mock_tasks = [
-  { id: 1, info: "fa curat", checked: true, date: { day: 25, month: 2, year: 2023 } },
-  { id: 2, info: "sapala masina", checked: true, date: { day: 25, month: 2, year: 2023 } },
-  { id: 3, info: "fa mancare", checked: true, date: { day: 22, month: 2, year: 2023 } },
-  { id: 4, info: "fa dus", checked: true, date: { day: 23, month: 2, year: 2023 } },
-  { id: 5, info: "spala rufe", checked: true, date: { day: 21, month: 2, year: 2023 } },
-  { id: 6, info: "citi", checked: false, date: { day: 22, month: 2, year: 2023 } },
+  { id: 1, text: "fa curat si spala masina", checked: false, date: { day: 10, month: 3, year: 2023 } }, //ai grija ca lunile incep de la 0
+  { id: 2, text: "mai lucra pe proiectul TDD", checked: false, date: { day: 10, month: 3, year: 2023 } },
+  { id: 3, text: "fa mancare", checked: false, date: { day: 11, month: 3, year: 2023 } },
+  { id: 4, text: "fa dus", checked: false, date: { day: 12, month: 3, year: 2023 } },
+  { id: 5, text: "spala rufe", checked: false, date: { day: 12, month: 3, year: 2023 } },
+  { id: 6, text: "citi", checked: false, date: { day: 16, month: 3, year: 2023 } },
+  { id: 7, text: "citi", checked: false, date: { day: 16, month: 3, year: 2023 } },
+  { id: 8, text: "citi", checked: false, date: { day: 16, month: 3, year: 2023 } },
+  { id: 9, text: "citi", checked: false, date: { day: 16, month: 3, year: 2023 } },
+  { id: 10, text: "citi", checked: false, date: { day: 16, month: 3, year: 2023 } },
+  { id: 11, text: "citi stat", checked: false, date: { day: 16, month: 3, year: 2023 } },
 ];
 
 let days = [
@@ -191,35 +196,132 @@ async function init() {
   //get tasks from back end
 
   let tasks = mock_tasks != undefined ? mock_tasks : [];
+  console.log('task-uri', tasks)
   if (tasks.length === 0) return;
   //separete tasks by days for current week
-  for (task of tasks) {
+  for (let task of tasks) {
     if (checkDate(task.date)) {
       separeteByDays(task);
     }
   }
   console.log("days tasks", days);
-  //show results in ui
-
   let container = document.querySelector(".wrapper-days");
 
-  days.forEach((day) => {
-    let markUpTasks = "";
+  //show results in ui
 
-    day.tasks.forEach((task) => {
-      let markUp = `<p>${task.info} ${task.checked ? "√" : "X"}</p>`;
-      markUpTasks += markUp;
-    });
+  updateUI()
 
-    let markUpContainer = `<div>
-      <h2>${day.name}</h2>
-      <div>
-          ${markUpTasks}
-      </div>
-    </div>`;
+  //update task checked
 
-    container.innerHTML += markUpContainer;
-  });
+  function updateTaskIsChecked(id) {
+    days.forEach(day => {
+      let index = day.tasks.findIndex(task => task.id == id)
+      if (index != -1) {
+        console.log('task-ul de modificat', day.tasks[index])
+        day.tasks[index].checked = !day.tasks[index].checked
+        console.log('task-ul dupa modificare:', day.tasks[index])
+        updateUI();
+      }
+    })
+  }
+
+  // update task data
+  function updateTaskData(id, newText) {
+    days.forEach(day => {
+      let index = day.tasks.findIndex(task => task.id == id)
+      if (index != -1) {
+        console.log('task-ul de modificat', day.tasks[index])
+        day.tasks[index].text = newText
+        console.log('task-ul dupa modificare:', day.tasks[index])
+        // updateUI();
+      }
+    })
+  }
+
+  function addNewTask() {
+    // creat new empty task
+    // show it in ui at the right place
+    // update ui
+  }
+
+  function deleteTask(id) {
+    console.log('id:', id)
+    //just remove task from day.tasks
+    //update the ui
+    days.forEach(day => {
+      let oldTasks = day.tasks
+      day.tasks = oldTasks.filter(task => task.id != id)
+    })
+    updateUI();
+  }
+
+  //save tasks to db
+
+  function saveTasks() {
+
+  }
+
+  //events
+  container.addEventListener('click', (e) => {
+    console.log('e target', e.target)
+    console.log('event', e)
+    //case for status change
+    //case for delete task
+    if (e.target.matches('img') && e.target.parentNode.classList.contains('remove-task')) {
+      let taskId = e.target.parentNode.parentNode.attributes['data-id-task'].value
+      deleteTask(taskId)
+    }
+
+    if (e.target.matches('img')) {
+      let taskId = e.target.parentNode.parentNode.attributes['data-id-task'].value
+      console.log('id task', taskId)
+      updateTaskIsChecked(taskId)
+    }
+
+  })
+  container.addEventListener('input', (e) => {
+    console.log('event', e)
+    console.log('e target', e.target)
+    let taskId = e.target.parentNode.attributes['data-id-task'].value
+    updateTaskData(taskId, e.target.textContent)
+  })
+
+  //update ui:
+
+  function updateUI() {
+    container.innerHTML = "";
+
+    days.forEach((day) => {
+      let markUpTasks = "";
+
+      let markUpNewTask = `<div class="add-task task-icon"><img src="./assets/icons/add_white.svg" /></div>`
+
+      day.tasks.forEach((task) => {
+        let markUp =
+          `<div class="task ${task.checked ? 'completed' : ''}" data-id-task='${task.id}'>
+            <div class="task-icon">
+              ${task.checked ? `<img src="./assets/icons/task_checked_white.svg" alt="Example SVG"/>` : `<img src="./assets/icons/task_unchecked_white.svg" alt="Example SVG" />`}
+            </div>
+            <div class="task-data" data="${task.checked}" contenteditable="${task.checked === false ? 'true' : 'false'}"  >${task.text}</div>
+            ${task.checked ? "" :
+            `<div class="remove-task task-icon">
+              <img src="./assets/icons/remove_circle.svg" />
+            </div>`}
+          </div>`
+        markUpTasks += markUp;
+      });
+
+      let markUpContainer =
+        `<div class="card day">
+          <h2 class="card-header">${day.name}</h2>
+          <div class="task-wrapper">
+              ${markUpTasks}
+          </div>
+        </div>`;
+
+      container.innerHTML += markUpContainer;
+    })
+  }
 }
 
 // run the logic

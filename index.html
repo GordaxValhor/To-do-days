@@ -1,25 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css" />
-    <title>To do days</title>
-    <style>
-      body {
-        background-color: rgb(54, 54, 54);
-        color: white;
-      }
-    </style>
-  </head>
-  <body>
-    <div>
-      <h2>Log in</h2>
-      <input type="password" id="password" />
-      <button id="logInBtn">Log in</button>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dongle:wght@300;400;700&display=swap" rel="stylesheet">
+  <title>To do days</title>
+
+</head>
+
+<body>
+  <div class="hide-shit">
+    <h2>Log in</h2>
+    <input type="password" id="password" />
+    <button id="logInBtn">Log in</button>
+  </div>
+  <div class="container">
+    <div class="header">
+      <h1>To do days</h1>
     </div>
-    <div class="wrapper-days"></div>
-    <script src="app.js"></script>
-  </body>
+    <div class="content">
+      <div class="wrapper-days"></div>
+    </div>
+    <div class="footer">
+      <h2>By i.c. </h2>
+    </div>
+  </div>
+
+
+
+
+  <!-- <div class="task">
+      <div class="task-icon">
+        <label>
+          <input type="checkbox">
+        </label>
+      </div>
+      <div class="task-data">
+        <textarea name="" id="" cols="30" rows="10"></textarea>
+      </div>
+    </div> -->
+
+  <script src="app.js"></script>
+  <!-- <script src="test.js"></script> -->
+</body>
+
 </html>
