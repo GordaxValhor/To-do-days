@@ -78,27 +78,32 @@ testJsonStorage();
 const URL_API_LOGIN = "https://gordax-api.glitch.me/login";
 
 async function logIn(logInData) {
+  console.log('login data', logInData);
 
-  console.log('login data', logInData)
+  try {
+    let result = await fetch(`${URL_API_LOGIN}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify(logInData)
+    });
 
-  let result = await fetch(`${URL_API_LOGIN}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(logInData)
-  });
+    console.log('results', result);
 
-  console.log('results', result)
+    if (result.ok) {
+      alert("You are logged in");
+      let response = await result.json();
+      console.log("response", response);
+    } else {
+      alert("Wrong password");
+    }
 
-  if (result.ok) {
-    alert("esti logat");
-    let response = await result.json();
-    console.log("raspuns", response);
-  } else {
-    alert("parola gresita");
+    console.log('cookies:', document.cookie);
+  } catch (error) {
+    console.error('An error occurred:', error);
   }
-  console.log('coockies:', document.cookie)
 }
 
 async function testLogIn() {
