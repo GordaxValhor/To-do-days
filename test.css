@@ -1,0 +1,39 @@
+::-webkit-scrollbar {
+    width: 10px;
+    height: 5px;
+    padding-top: 20px;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: white;
+    border-radius: 5px;
+
+    width: 50px;
+
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #d6d6d6;
+  } 
+
+
+/* clase pt test */
+
+.test-scroll-diferit-1{
+    overflow: hidden;
+}
+
+.test-scroll-diferit-2{
+    overflow-x: scroll;
+    overflow-y: hidden;
+
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+}
