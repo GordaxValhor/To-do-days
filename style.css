@@ -29,16 +29,14 @@ html {
   font-family: 'Dongle', sans-serif;
 }
 
-.hide-shit {
-  display: none;
-}
+
 
 html,
 body {
   width: 100%;
   height: 100%;
   background-color: var(--background-color);
-
+  scroll-behavior: smooth;
 }
 
 
@@ -92,7 +90,7 @@ body {
   flex: 0 0 25.6rem;
   border-radius: 5px;
   background-color: var(--card-color);
-  padding: 2rem;
+  padding: 2rem 2rem 4rem 2rem;
   max-width: 25.6rem;
   min-height: 25rem;
   max-height: 80rem;
@@ -100,7 +98,7 @@ body {
 
 .card-header {
   font-size: 3.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: .5rem;
   text-align: center;
   font-weight: 400;
 }
@@ -121,8 +119,8 @@ body {
 }
 
 .task-icon {
-  width: 2.3rem;
-  height: 2.3rem;
+  width: 2.4rem;
+  height: 2.4rem;
 
   margin-right: 0.5rem;
   margin-top: 4px;
@@ -134,11 +132,22 @@ body {
 
 }
 
+.add-task {
+  margin: 0 auto;
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+.add-task-wrapper {
+  margin-top: 1.5rem;
+}
+
+.add-task-wrapper:hover .add-task {
+  opacity: 1;
+}
+
 
 .remove-task {
-  /* width: 2.3rem;
-  height: 2.3rem; */
-  /* display: none; */
   visibility: hidden;
   cursor: pointer;
 }
@@ -163,5 +172,12 @@ img {
   padding: 0 0 0 2px;
 }
 
+.today {
+  border: 1px solid var(--text-white-color)
+}
+
 
 /* ///////////////////////////////// */
+.hide-shit {
+  display: none;
+}
