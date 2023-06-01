@@ -2,27 +2,37 @@
 
 //api key for https://api.jsonstorage.net/ storage
 
-let API_KEY = "db621cc1-afc9-4b43-b5f3-af6b76f8bdde";
 
-let URL_STORAGE = "https://api.jsonstorage.net/v1/json/38559add-6b9a-4d4f-8c0b-14758de0a685/";
+let USER = {}; // user global objects holds users data
 
-let bucket_1 = "b98e5cb2-fe16-4e5e-9ffa-9a0567e4fff2";
-let bucket_2 = "9b2787c3-0818-45af-bd94-3e7f320c2e60";
 
 let data = [];
+
 async function testGet() {
   console.log("aici");
-  let response = await fetch(`${URL_STORAGE}${bucket_2}`);
+  let response = await fetch(`${URL_STORAGE}${API_KEY}`);
+  console.log('response raspuns', response)
   let result = await response.json();
   data = result;
   console.log("Result din fetch:", result);
 }
-async function update() {
+
+async function getData() {
+  console.log('user', USER)
+  let response = await fetch(`${USER.url_storage}${USER.bucket}?apiKey=${USER.api_key}`);
+  console.log('response raspuns', response)
+  let result = await response.json();
+  data = result;
+  console.log("Result din fetch:", result);
+  return result
+}
+
+async function update(data) {
   //   data.push();
-  let toSend = [...data, { id: Date.now().toString(), name: "test din cod!!" }];
+  let toSend = [...data];
   console.log("to send", toSend);
 
-  let response = await fetch(`${URL_STORAGE}${bucket_2}?apiKey=${API_KEY}`, {
+  let response = await fetch(`${USER.url_storage}${USER.bucket}?apiKey=${USER.api_key}`, {
     method: "PUT",
     body: JSON.stringify(toSend),
     headers: {
@@ -33,46 +43,23 @@ async function update() {
 
   console.log("Result din fetch put:", result);
 }
-async function patch() {
-  //   data.push();
-  let toSend = { id: Date.now().toString(), name: "test din cod put!!" };
-  console.log("to send", toSend);
+// async function patch() {
+//   //   data.push();
+//   let toSend = { id: Date.now().toString(), name: "test din cod put!!" };
+//   console.log("to send", toSend);
 
-  let response = await fetch(`${URL_STORAGE}?apiKey=${API_KEY}`, {
-    method: "PATCH",
-    body: JSON.stringify(toSend),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  let result = await response.json();
+//   let response = await fetch(`${URL_STORAGE}?apiKey=${API_KEY}`, {
+//     method: "PATCH",
+//     body: JSON.stringify(toSend),
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//   });
+//   let result = await response.json();
 
-  console.log("Result din fetch patch:", result);
-}
-function testJsonStorage() {
-  console.log("incepe testuls");
-}
+//   console.log("Result din fetch patch:", result);
+// }
 
-//getting html elements
-
-// let buttonTest = document.querySelector("#button");
-// let buttonTestPut = document.querySelector("#button2");
-// let buttonTestPatch = document.querySelector("#button3");
-
-// buttonTest.addEventListener("click", (e) => {
-//   console.log("se apasa test");
-//   testGet();
-// });
-// buttonTestPut.addEventListener("click", (e) => {
-//   console.log("se apasa test put");
-//   update();
-// });
-// buttonTestPatch.addEventListener("click", (e) => {
-//   console.log("se apasa test patch");
-//   patch();
-// });
-
-testJsonStorage();
 //testare log in prin api glitch
 
 const URL_API_LOGIN = "https://gordax-api.glitch.me/login";
@@ -86,7 +73,6 @@ async function logIn(logInData) {
       headers: {
         "Content-Type": "application/json"
       },
-      credentials: 'include',
       body: JSON.stringify(logInData)
     });
 
@@ -96,6 +82,15 @@ async function logIn(logInData) {
       alert("You are logged in");
       let response = await result.json();
       console.log("response", response);
+      // create the session cookie
+      const expirationDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toUTCString();
+      document.cookie = `session_cookie=${response.session_token}; expires=${expirationDate}; path=/`;
+      // save the user
+      saveUser(response);
+      //get user data from saved user data
+      USER = JSON.parse(localStorage.getItem('USER'))
+      // init to do logic
+      init();
     } else {
       alert("Wrong password");
     }
@@ -106,7 +101,14 @@ async function logIn(logInData) {
   }
 }
 
-async function testLogIn() {
+async function initLogIn() {
+
+  //show log in screen
+  let logInScreen = document.querySelector("#log-in-screen");
+  logInScreen.classList.remove('hide-shit')
+
+
+  // get data from form
   let inputPwd = document.querySelector("#password");
   let inputUserName = document.querySelector("#username");
   let buttonLogIn = document.querySelector("#logInBtn");
@@ -266,12 +268,18 @@ function scrollToCurrentDay() {
 }
 
 async function init() {
+  //hide log in screen and show to do screen
+  document.querySelector('#log-in-screen').classList.add('hide-shit')
+  document.querySelector('#to-do-screen').classList.remove('hide-shit')
+
   //get current date data
   currentDate = getCurrentDate();
 
-  //get tasks from back end
+  let taskFromBackEnd = await getData(); //get tasks from back end
 
-  let tasks = mock_tasks != undefined ? mock_tasks : [];
+  //un pic de loader aici maybe
+
+  let tasks = taskFromBackEnd != undefined ? taskFromBackEnd : mock_tasks;
   console.log('task-uri', tasks)
 
   if (tasks.length === 0) return;
@@ -300,12 +308,17 @@ async function init() {
     days.forEach(day => {
       let index = day.tasks.findIndex(task => task.id == id)
       if (index != -1) {
-        console.log('task-ul de modificat', day.tasks[index])
         day.tasks[index].checked = !day.tasks[index].checked
-        console.log('task-ul dupa modificare:', day.tasks[index])
         updateUI();
       }
     })
+    // update task checked value
+    let index = tasks.findIndex(item => item.id == id)
+    if (index != -1) {
+      tasks[index].checked = tasks[index].checked
+    }
+    console.log('tasks dupa update checked value:', tasks)
+
   }
 
   // update task data
@@ -317,6 +330,14 @@ async function init() {
         // updateUI();
       }
     })
+
+    //update task data form tasks list
+    let index = tasks.findIndex(item => item.id == id)
+    if (index != -1) {
+      tasks[index].text = newText
+    }
+    console.log('tasks dupa update text:', tasks)
+
   }
 
   //ADD new task
@@ -343,6 +364,11 @@ async function init() {
     }
     updateUI();
     addFocusToElement(id);
+
+    //ad tesk to tasks list
+    tasks.push(newTask)
+    console.log('tasks dupa add:', tasks)
+
   }
 
   function addFocusToElement(id) {
@@ -355,17 +381,21 @@ async function init() {
     //just remove task from day.tasks
     //update the ui
     days.forEach(day => {
-      // day.tasks = 
-      day.tasks = JSON.parse(JSON.stringify([...day.tasks.filter(task => task.id != id)]))
+      //test with new structured clone
+      day.tasks = structuredClone([...day.tasks.filter(task => task.id != id)])
     })
     console.log(days)
     updateUI();
+
+    //delete task from tasks list
+    tasks = structuredClone([...tasks.filter(task => task.id != id)])
+    console.log('tasks dupa update text:', tasks)
   }
 
   //save tasks to db
 
   function saveTasks() {
-
+    update(tasks)
   }
 
   //events
@@ -412,6 +442,15 @@ async function init() {
     }
   })
 
+  //save events
+  document.onvisibilitychange = () => {
+    if (document.visibilityState === "hidden") {
+      //save the data to back end
+      saveTasks()
+      console.log('ne pune sa salvam:', tasks)
+    }
+  };
+
   //update ui:
 
   function updateUI() {
@@ -437,7 +476,7 @@ async function init() {
             <div class="task-icon">
               ${task.checked ? `<img src="./assets/icons/task_checked_white.svg" alt="Example SVG"/>` : `<img src="./assets/icons/task_unchecked_white.svg" alt="Example SVG" />`}
             </div>
-            <div class="task-data" data="${task.checked}" contenteditable="${task.checked === false ? 'true' : 'false'}" id="text-${task.id}">${task.text}</div>
+            <div class="task-data" data="${task.checked}" contenteditable="${task.checked === false ? 'true' : 'false'}" id="text-${task.id}" spellcheck="false">${task.text}</div>
             ${task.checked ? "" :
             `<div class="remove-task task-icon">
               <img src="./assets/icons/remove_circle.svg" />
@@ -448,7 +487,7 @@ async function init() {
 
       let markUpContainer =
         `<div class="card day ${isToday ? 'today' : ''}">
-          <h2 class="card-header">${day.name}</h2>
+          <h2 class="card-header">${day.name} - ${day.date.day}/${day.date.month}</h2>
           <div class="task-wrapper">
               ${markUpTasks}
           </div>
@@ -463,14 +502,59 @@ async function init() {
 // run the logic
 //init();
 
+function checkUser() {
+  // check if we have an user in locale data and get its data
+  if (checkSessionCookie()) {
+    if (localStorage.getItem('USER')) {
+      USER = JSON.parse(localStorage.getItem('USER'))
+      return true
+    }
+    else {
+      initLogIn();
+      return false
+    }
+  }
+  else {
+    // user must log in again
+    initLogIn();
+    return false
+  }
+}
 
-//try login
+function saveUser(user) {
+  // save user data in locale storage
+  console.log('aici')
+  localStorage.setItem('USER', JSON.stringify(user));
+  //
+}
 
-// if login true => show tasks
+function checkSessionCookie() {
+  // check if session cookie exists if not user must log in again
+  // if(document.cookie)
+  const cookies = document.cookie.split(';');
 
+  // Iterate through the cookies
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+
+    // Check if the current cookie starts with the desired name
+    if (cookie.startsWith('session_cookie' + '=')) {
+      return true; // Cookie found
+    }
+  }
+
+  return false; // Cookie not found
+}
 
 function startGame() {
-  testLogIn(); //inits the Login logic
+  // check if we have a user
+
+  if (checkUser()) {
+    //init to do logic
+    init();
+  }
+  // check if user is loged in
+
 
   //test if user is loged in
 }
