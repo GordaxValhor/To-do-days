@@ -5,6 +5,9 @@
 
 let USER = {}; // user global objects holds users data
 
+let data_status = {
+  is_modified: false,
+}
 
 let data = [];
 
@@ -39,9 +42,15 @@ async function update(data) {
       "Content-Type": "application/json",
     },
   });
+  console.log('response', response)
   let result = await response.json();
 
   console.log("Result din fetch put:", result);
+
+  if (response.ok) {
+    return true
+  }
+  return false
 }
 // async function patch() {
 //   //   data.push();
@@ -319,6 +328,7 @@ async function init() {
     }
     console.log('tasks dupa update checked value:', tasks)
 
+    data_status.is_modified = true;
   }
 
   // update task data
@@ -336,8 +346,10 @@ async function init() {
     if (index != -1) {
       tasks[index].text = newText
     }
-    console.log('tasks dupa update text:', tasks)
+    // console.log('tasks dupa update text:', tasks)
 
+    // change data status to isModified to so that we know when to update the db
+    data_status.is_modified = true;
   }
 
   //ADD new task
@@ -369,6 +381,7 @@ async function init() {
     tasks.push(newTask)
     console.log('tasks dupa add:', tasks)
 
+    data_status.is_modified = true;
   }
 
   function addFocusToElement(id) {
@@ -390,12 +403,26 @@ async function init() {
     //delete task from tasks list
     tasks = structuredClone([...tasks.filter(task => task.id != id)])
     console.log('tasks dupa update text:', tasks)
+
+    data_status.is_modified = true;
   }
 
   //save tasks to db
 
-  function saveTasks() {
-    update(tasks)
+  async function saveTasks() {
+    if (data_status.is_modified) {
+      let result = await update(tasks)
+      console.log(result)
+      if (result) {
+        data_status.is_modified = false;
+        console.log('am salvat datele')
+      }
+      return result
+    }
+    else {
+      console.log('nu avem nimic de salvat')
+    }
+
   }
 
   //events
@@ -447,9 +474,17 @@ async function init() {
     if (document.visibilityState === "hidden") {
       //save the data to back end
       saveTasks()
-      console.log('ne pune sa salvam:', tasks)
     }
   };
+  window.addEventListener('beforeunload', function (event) {
+    // Save your data here
+    saveTasks()
+    // Cancel the default behavior to show the confirmation dialog
+    event.preventDefault();
+
+    // Chrome requires the returnValue property to be set
+    event.returnValue = 'Acuma se salveaza';
+  });
 
   //update ui:
 
